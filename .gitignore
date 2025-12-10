@@ -1,0 +1,13 @@
+# Database access files
+.htaccess
+
+# Dependency directories
+node_modules/
+
+# Used to create the site's images
+*.kra
+*.kra~
+templates/
+
+# Used for testing page design locally
+test*.html

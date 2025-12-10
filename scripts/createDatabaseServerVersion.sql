@@ -1,0 +1,83 @@
+USE bda9885;
+
+DROP TABLE IF EXISTS uno_gameChat;
+DROP TABLE IF EXISTS uno_lobbyChat;
+DROP TABLE IF EXISTS uno_gameCard;
+DROP TABLE IF EXISTS uno_userCard;
+DROP TABLE IF EXISTS uno_game;
+DROP TABLE IF EXISTS uno_card;
+DROP TABLE IF EXISTS uno_user;
+
+CREATE TABLE uno_user(
+userID INT UNSIGNED AUTO_INCREMENT,
+username VARCHAR(25) UNIQUE NOT NULL,
+password VARCHAR(256) NOT NULL,
+wins INT UNSIGNED,
+CONSTRAINT user_pk PRIMARY KEY (userID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS uno_card;
+
+CREATE TABLE uno_card(
+cardID SMALLINT UNSIGNED,
+color VARCHAR(8),
+value VARCHAR(10),
+image VARCHAR(40),
+CONSTRAINT uno_card_pk PRIMARY KEY (cardID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS uno_game;
+
+CREATE TABLE uno_game(
+gameID INT UNSIGNED AUTO_INCREMENT,
+player1ID INT UNSIGNED,
+player2ID INT UNSIGNED,
+turn TINYINT UNSIGNED,
+winner INT UNSIGNED,
+CONSTRAINT uno_game_pk PRIMARY KEY (gameID),
+CONSTRAINT uno_game_player1ID_fk FOREIGN KEY (player1ID) REFERENCES uno_user(userID),
+CONSTRAINT uno_game_player2ID_fk FOREIGN KEY (player2ID) REFERENCES uno_user(userID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS uno_userCard;
+
+CREATE TABLE uno_userCard(
+userID INT UNSIGNED,
+cardID SMALLINT UNSIGNED,
+gameID INT UNSIGNED,
+CONSTRAINT uno_userCard_pk PRIMARY KEY (userID, cardID, gameID),
+CONSTRAINT uno_userCard_userID_fk FOREIGN KEY (userID) REFERENCES uno_user(userID),
+CONSTRAINT uno_userCard_cardID_fk FOREIGN KEY (cardID) REFERENCES uno_card(cardID),
+CONSTRAINT uno_userCard_gameID_fk FOREIGN KEY (gameID) REFERENCES uno_game(gameID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS uno_gameCard;
+
+CREATE TABLE uno_gameCard(
+gameID INT UNSIGNED,
+turnNumber INT UNSIGNED,
+cardID SMALLINT UNSIGNED,
+CONSTRAINT uno_gameCard_pk PRIMARY KEY (gameID, turnNumber),
+CONSTRAINT uno_gameCard_gameID_fk FOREIGN KEY (gameID) REFERENCES uno_game(gameID),
+CONSTRAINT uno_gameCard_cardID_fk FOREIGN KEY (cardID) REFERENCES uno_card(cardID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE uno_lobbyChat(
+messageID INT UNSIGNED AUTO_INCREMENT,
+sent DATETIME DEFAULT CURRENT_TIMESTAMP,
+message TEXT(500),
+username VARCHAR(25) NOT NULL,
+CONSTRAINT uno_lobbyChat_pk PRIMARY KEY (messageID),
+CONSTRAINT uno_lobbyChat_username_fk FOREIGN KEY (username) REFERENCES uno_user(username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE uno_gameChat(
+messageID INT UNSIGNED AUTO_INCREMENT,
+sent DATETIME DEFAULT CURRENT_TIMESTAMP,
+message TEXT(500),
+username VARCHAR(25) UNIQUE NOT NULL,
+gameID INT UNSIGNED,
+CONSTRAINT uno_gameChat_pk PRIMARY KEY (messageID),
+CONSTRAINT uno_gameChat_username_fk FOREIGN KEY (username) REFERENCES uno_user(username),
+CONSTRAINT uno_gameChat_gameID_fk FOREIGN KEY (gameID) REFERENCES uno_game(gameID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
